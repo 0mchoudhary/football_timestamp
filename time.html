@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Football Watchalong Timestamp Tool</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    h2 { color:#22c55e; margin-top:0; }
+    label { margin-top:12px; display:block; font-weight:bold; }
+    input {
+      width:100%; padding:12px; margin-top:8px;
+      background:#020617; color:#e5e7eb;
+      border:1px solid #334155; border-radius:10px;
+    }
+    .timer { text-align:center; font-size:42px; color:#22c55e; }
+    .scoreboard{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      margin:20px 0;
+      gap:12px;
+    }
+    .team-name{
+      font-size:18px;
+      font-weight:600;
+      color:#94a3b8;
+      text-align:center;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .btn-group { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .teams{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:12px;
+      align-items:center;
+      margin-top:8px;
+    }
+    .vs{
+      font-weight:bold;
+      color:#94a3b8;
+      text-align:center;
+      min-width:32px;
+    }
+    button {
+      padding:14px; border:none; border-radius:12px;
+      background:#22c55e; color:#020617; font-weight:bold; cursor:pointer;
+    }
+    button:hover { background:#16a34a; }
+    @media(max-width:600px){
+      .btn-group{grid-template-columns:repeat(2,1fr)}
+      .teams{grid-template-columns:1fr;}
+      .vs{margin:6px 0;}
+      .scoreboard{grid-template-columns:1fr;}
+      .team-name{font-size:16px;}
+    }
+  </style>
+</head>
+<body>
+
+<main>
+  <div class="card">
+    <h2>⏱ Match Time Watch</h2>
+
+    <label>Team Names</label>
+    <div class="teams">
+      <input id="teamA" placeholder="Team A" oninput="updateMatchLine()" />
+      <span class="vs">vs</span>
+      <input id="teamB" placeholder="Team B" oninput="updateMatchLine()" />
+    </div>
+
+    <label>Set Start Time (MM:SS)</label>
+    <input id="customTime" placeholder="45:00" />
+
+    <div class="scoreboard">
+      <div id="leftTeam" class="team-name">Team A</div>
+      <div id="timer" class="timer">00:00</div>
+      <div id="rightTeam" class="team-name">Team B</div>
+    </div>
+
+    <div class="btn-group">
+      <button onclick="setCustomTime()">Set Time</button>
+      <button onclick="startTimer()">Start</button>
+      <button onclick="pauseTimer()">Pause</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  let seconds = 0;
+  let interval = null;
+
+  function formatTime(sec){
+    const m = String(Math.floor(sec/60)).padStart(2,'0');
+    const s = String(sec%60).padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  function updateMatchLine(){
+    const a = document.getElementById('teamA').value || 'Team A';
+    const b = document.getElementById('teamB').value || 'Team B';
+    document.getElementById('leftTeam').innerText = a;
+    document.getElementById('rightTeam').innerText = b;
+  }
+
+  function startTimer(){
+    if(interval) return;
+    interval = setInterval(()=>{
+      seconds++;
+      document.getElementById('timer').innerText = formatTime(seconds);
+    },1000);
+  }
+
+  function pauseTimer(){
+    clearInterval(interval);
+    interval = null;
+  }
+
+  function resetTimer(){
+    pauseTimer();
+    seconds = 0;
+    document.getElementById('timer').innerText = '00:00';
+  }
+
+  function setCustomTime(){
+    pauseTimer();
+    const val = document.getElementById('customTime').value.trim();
+    if(!/^\d+:\d{2}$/.test(val)){ alert('Use MM:SS'); return; }
+    const [m,s] = val.split(':').map(Number);
+    if(s>=60){ alert('Seconds < 60'); return; }
+    seconds = m*60+s;
+    document.getElementById('timer').innerText = formatTime(seconds);
+  }
+</script>
+
+</body>
+</html>
